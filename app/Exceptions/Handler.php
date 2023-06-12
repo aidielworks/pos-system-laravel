@@ -7,6 +7,7 @@ use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -59,6 +60,10 @@ class Handler extends ExceptionHandler
 
             if($e instanceof ValidationException){
                 return $controller->errorResponse('Validation error!', 422, ['errors' => Arr::flatten($e->validator->errors()->toArray())]);
+            }
+        } else {
+            if($e instanceof NotFoundHttpException){
+                return response()->view('errors.404', [],404);
             }
         }
 

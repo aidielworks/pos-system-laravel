@@ -22,7 +22,6 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/',  [AuthenticatedSessionController::class, 'create']);
-Route::get('/onboarding',  [OnboardingController::class, 'index']);
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [ProfileController::class, 'dashboard'])->name('dashboard');
