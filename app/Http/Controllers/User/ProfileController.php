@@ -98,12 +98,16 @@ class ProfileController extends Controller
 
         $todays_sales_foods = [
             'value' => $todays_foods,
-            'percent' => $yesterday_foods == 0 ? 100 : ($todays_foods - $yesterday_foods) / $yesterday_foods * 100
+            'percent' => $yesterday_foods == 0 ?
+                $todays_foods == 0 ? 0 : 100 :
+                ($todays_foods - $yesterday_foods) / $yesterday_foods * 100
         ];
 
         $todays_sales_drinks = [
             'value' => $todays_drinks,
-            'percent' => $yesterday_drinks == 0 ? 100 : ($todays_drinks - $yesterday_drinks) / $yesterday_drinks * 100
+            'percent' => $yesterday_drinks == 0 ?
+                $todays_foods == 0 ? 0 : 100 :
+                ($todays_drinks - $yesterday_drinks) / $yesterday_drinks * 100
         ];
 
         //TOP 10 ITEM
@@ -121,7 +125,6 @@ class ProfileController extends Controller
 
         $top_10_foods = $top_10_query((clone $food));
         $top_10_drinks = $top_10_query((clone $drinks));
-
 
         // TOTAL SALES BY MONTH
         $order_items_by_month = OrderItem::selectRaw('SUM(subtotal) as total, MONTH(created_at) as month')

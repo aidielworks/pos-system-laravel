@@ -120,7 +120,7 @@
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="6" class="px-4 py-4 text-sm whitespace-nowrap text-center dark:text-white">
+                                                <td colspan="6" class="px-4 py-4 text-sm whitespace-nowrap text-center text-gray-500">
                                                     No order for now
                                                 </td>
                                             </tr>
@@ -225,7 +225,9 @@
                             </div>
                         </div>
                     @empty
-                        <p class="w-full text-center dark:text-white">No order for now</p>
+                        <div class="h-32 flex items-center">
+                            <p class="w-full text-center text-gray-500">No order for now</p>
+                        </div>
                     @endforelse
                 </div>
             @endif
