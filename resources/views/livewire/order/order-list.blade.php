@@ -39,7 +39,7 @@
                         <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                             <div class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
                                 <div class="overflow-hidden border border-gray-200 md:rounded-lg">
-                                    <table class="bg-yellow-500 min-w-full divide-y divide-gray-200 ">
+                                    <table class="bg-yellow-500 min-w-full divide-y divide-gray-200">
                                         <thead class="text-center">
                                             <tr>
                                                 <th scope="col" class="py-3.5 px-4 text-sm font-normal text-left rtl:text-right text-yellow-900">
