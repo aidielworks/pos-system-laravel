@@ -16,6 +16,7 @@ class Pos extends Component
     public $subtotal = 0.00;
     public $discount = 0.00;
     public $search_items = '';
+    public $order_no = '';
 
     protected $_cart_session_key = 'cart_session';
 
@@ -109,6 +110,7 @@ class Pos extends Component
             $this->calculateCart();
         }
 
+        $this->order_no = 'OD-'.date('his');
         $this->categories = Category::all();
         $this->products = Product::orderBy('product_name', 'asc')->get();
     }

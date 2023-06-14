@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Order;
 
+use App\Enum\PaymentType;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Enum;
 
 class OrderStoreRequest extends FormRequest
 {
@@ -29,7 +31,7 @@ class OrderStoreRequest extends FormRequest
             'subtotal_amount' => ['required', 'numeric'],
             'discount_amount' => ['required', 'numeric'],
             'total_amount' => ['required', 'numeric'],
-            'paid_amount' => ['required', 'numeric'],
+            'paid_amount' => ['required_with:pay', 'numeric'],
             'order_items' => ['array'],
             'order_items.*.product_id' => ['required'],
             'order_items.*.price' => ['required', 'numeric'],
@@ -37,6 +39,7 @@ class OrderStoreRequest extends FormRequest
             'order_items.*.subtotal' => ['required', 'numeric'],
             'place_order' => ['sometimes', 'nullable'],
             'pay' => ['sometimes', 'nullable'],
+            'payment_method' => ['required_with:pay', new Enum(PaymentType::class)]
         ];
     }
 }

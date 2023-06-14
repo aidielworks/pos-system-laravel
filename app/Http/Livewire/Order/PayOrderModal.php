@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\Order;
 
+use App\Enum\PaymentType;
 use App\Models\Order;
 use App\Models\OrderItem;
 use LivewireUI\Modal\ModalComponent;
@@ -10,6 +11,7 @@ class PayOrderModal extends ModalComponent
 {
     public $pay_amount = 0;
     public $change = 0;
+    public $payment_types;
 
     public $order_id;
     public $order;
@@ -20,6 +22,7 @@ class PayOrderModal extends ModalComponent
         $this->order = Order::find($this->order_id);
         $this->order_items = $this->order->order_items;
         $this->total = $this->order['total_amount'];
+        $this->payment_types = collect(PaymentType::cases())->mapWithKeys(fn ($type) => [$type->value => $type->getLabel()])->toArray();
     }
 
     public function updatedPayAmount()

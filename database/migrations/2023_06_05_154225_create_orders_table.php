@@ -22,6 +22,7 @@ return new class extends Migration
             $table->decimal('discount_amount')->default(0);
             $table->decimal('total_amount')->default(0);
             $table->decimal('paid_amount')->default(0);
+            $table->integer('payment_method')->nullable();
             $table->integer('status')->default(0);
             $table->unsignedInteger('created_by');
             $table->timestamps();

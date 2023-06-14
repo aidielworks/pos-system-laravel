@@ -65,12 +65,19 @@
                         </div>
                     </div>
                 </div>
-                <div class="w-full">
-                    <div class="flex flex-row items-center px-4 py-2 mb-2">
+                <div class="flex flex-col gap-4 w-full">
+                    <div class="flex flex-row items-center px-4 py-2">
                         <p class="font-bold text-lg mr-4">PAY AMOUNT</p>
                         <input wire:model="pay_amount" class="grow rounded-md" type="number" name="paid_amount" step="0.01">
                     </div>
-                    <div class="flex flex-row justify-between items-center px-4 py-2 bg-yellow-300 rounded-md mb-4 shadow-md">
+                    <div>
+                        <select class="w-full text-sm rounded" name="payment_method">
+                            @foreach($payment_types as $key => $type)
+                                <option value="{{ $key }}">{{ $type }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="flex flex-row justify-between items-center px-4 py-2 bg-yellow-300 rounded-md shadow-md">
                         <p class="font-bold text-lg mr-4 text-yellow-900">CHANGE</p>
                         <p class="font-bold text-lg mr-4 text-yellow-700">RM{{ number_format($change, 2, '.', ',') }}</p>
                     </div>

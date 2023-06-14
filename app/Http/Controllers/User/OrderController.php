@@ -4,6 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Enum\MealType;
 use App\Enum\OrderStatus;
+use App\Enum\PaymentType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Order\OrderStoreRequest;
 use App\Models\Order;
@@ -14,6 +15,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Validation\Rules\Enum;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class OrderController extends Controller
@@ -118,11 +120,13 @@ class OrderController extends Controller
     public function payOrder(Request $request, Order $order)
     {
         $validated = $request->validate([
-            'paid_amount' => ['required', 'numeric']
+            'paid_amount' => ['required', 'numeric'],
+            'payment_method' => ['required_with:pay', new Enum(PaymentType::class)]
         ]);
 
         $order->status = OrderStatus::PAID;
         $order->paid_amount = $validated['paid_amount'];
+        $order->payment_method = $validated['payment_method'];
         $order->save();
 
         session()->flash('print-receipt', $order->id);

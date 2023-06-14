@@ -1,7 +1,6 @@
 <div>
     <form method="post" action="{{ route('order.store') }}">
         @csrf
-
         <!--Header and Close Button-->
         <div class="mx-5 mt-5 flex justify-between items-center">
             <p class="font-bold">
@@ -74,19 +73,23 @@
                         </div>
                     </div>
                 </div>
-                <div class="w-full">
-                    <div class="flex flex-row items-center px-4 py-2 mb-2">
-                        <p class="font-bold text-lg mr-4">PAY AMOUNT</p>
-                        <input wire:model="pay_amount" class="grow rounded-md" type="number" name="paid_amount">
+                <div class="w-full flex flex-col gap-4">
+                    <div class="flex flex-row items-center px-4 py-2">
+                        <p class="font-bold text-lg mr-4 whitespace-nowrap">PAY AMOUNT</p>
+                        <input wire:model="pay_amount" class="flex-1 rounded-md" type="number" name="paid_amount">
                     </div>
-                    <div class="flex flex-row justify-between items-center px-4 py-2 bg-yellow-300 rounded-md mb-4 shadow-md">
+                    <div>
+                        <select class="w-full text-sm rounded" name="payment_method">
+                            @foreach($payment_types as $key => $type)
+                                <option value="{{ $key }}">{{ $type }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="flex flex-row justify-between items-center px-4 py-2 bg-yellow-300 rounded-md shadow-md">
                         <p class="font-bold text-lg mr-4 text-yellow-900">CHANGE</p>
                         <p class="font-bold text-lg mr-4 text-yellow-700">RM{{ number_format($change, 2, '.', ',') }}</p>
                     </div>
-                    <div class="flex gap-4">
-                        <button type="submit" name="place_order" class="w-full px-4 py-2 border rounded-md text-white shadow-md @if($pay_amount > $total) bg-gray-300 cursor-not-allowed @else bg-yellow-500 @endif" @if($pay_amount > $total) disabled @endif>PLACE ORDER</button>
-                        <button type="submit" name="pay" class="w-full px-4 py-2 border rounded-md text-white shadow-md @if($pay_amount < $total) bg-gray-300 cursor-not-allowed @else bg-yellow-500 @endif" @if($pay_amount < $total) disabled @endif>PAY</button>
-                    </div>
+                    <button type="submit" name="pay" class="w-full px-4 py-2 border rounded-md text-white shadow-md @if($pay_amount < $total) bg-gray-300 cursor-not-allowed @else bg-yellow-500 @endif" @if($pay_amount < $total) disabled @endif>PAY</button>
                 </div>
             </div>
         </div>

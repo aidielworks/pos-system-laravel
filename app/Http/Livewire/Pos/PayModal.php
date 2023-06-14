@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\Pos;
 
+use App\Enum\PaymentType;
 use LivewireUI\Modal\ModalComponent;
 
 class PayModal extends ModalComponent
@@ -12,11 +13,13 @@ class PayModal extends ModalComponent
     public $total = 0;
     public $pay_amount = 0;
     public $change = 0;
+    public $payment_types;
+    public $order_no;
 
     public function mount()
     {
-        $this->order_no = 'OD-'.date('his');
         $this->calculateCart();
+        $this->payment_types = collect(PaymentType::cases())->mapWithKeys(fn ($type) => [$type->value => $type->getLabel()])->toArray();
     }
 
     public function updatedPayAmount()
