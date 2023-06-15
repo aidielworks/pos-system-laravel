@@ -145,18 +145,19 @@
                     <div class="flex flex-row gap-4 px-5 my-5">
                         <button type="submit" name="place_order"
                             @class([
-                                'w-full px-4 py-2 rounded-md text-yellow-700 shadow-md font-semibold hover:bg-yellow-500 hover:text-white',
-                                'bg-gray-300 cursor-not-allowed' => count($carts) == 0,
-                                'border border-yellow-500 bg-white' => count($carts) != 0
+                                'w-full px-4 py-2 rounded-md shadow-md font-semibold',
+                                'bg-gray-300 cursor-not-allowed text-gray-100' => count($carts) == 0,
+                                'border border-yellow-500 bg-white text-yellow-500 hover:bg-yellow-500 hover:text-white' => count($carts) != 0
                              ])
+                            @if(count($carts) === 0) disabled @endif
                         >
                             PLACE ORDER
                         </button>
                         <button
                             @class([
-                                 "w-full px-4 py-4 rounded-md shadow-lg text-center text-white font-semibold hover:bg-yellow-700 hover:text-yellow-500",
-                                 'bg-gray-300 cursor-not-allowed' => count($carts) == 0,
-                                 'bg-yellow-500' => count($carts) != 0
+                                 "w-full px-4 py-4 rounded-md shadow-lg text-center font-semibold",
+                                 'bg-gray-300 cursor-not-allowed text-gray-100' => count($carts) == 0,
+                                 'bg-yellow-500 text-white hover:bg-yellow-700 hover:text-yellow-500' => count($carts) != 0
                             ])
                             wire:click="$emit('openModal', 'pos.pay-modal', {{ json_encode(['carts' => $carts, 'order_no' => $order_no]) }})"
                             @if(count($carts) === 0) disabled @endif
