@@ -159,7 +159,7 @@
                                  'bg-gray-300 cursor-not-allowed text-gray-100' => count($carts) == 0,
                                  'bg-yellow-500 text-white hover:bg-yellow-700 hover:text-yellow-500' => count($carts) != 0
                             ])
-                            wire:click="$emit('openModal', 'pos.pay-modal', {{ json_encode(['carts' => $carts, 'order_no' => $order_no]) }})"
+                            wire:click.prevent="$emit('openModal', 'pos.pay-modal', {{ json_encode(['carts' => $carts, 'order_no' => $order_no]) }})"
                             @if(count($carts) === 0) disabled @endif
                         >
                             PAY
