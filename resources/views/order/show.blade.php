@@ -9,7 +9,7 @@
             <div class="w-2/3 h-[75vh] p-4 flex flex-col gap-4 bg-white ">
                 <!-- Back button and status -->
                 <div class="flex justify-between items-center">
-                    <a href="{{ route('order.index') }}" class="px-4 py-1 border-2 border-gray-500 rounded-lg hover:bg-gray-500 hover:text-white">Back</a>
+                    <a href="{{ url()->previous() == url()->current() ? route('order.index') : url()->previous() }}" class="px-4 py-1 border-2 border-gray-500 rounded-lg hover:bg-gray-500 hover:text-white">Back</a>
                     <div
                     @class([
                         'px-2 rounded-full border-2 w-24 text-center self-end',

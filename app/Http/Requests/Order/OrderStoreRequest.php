@@ -39,7 +39,8 @@ class OrderStoreRequest extends FormRequest
             'order_items.*.subtotal' => ['required', 'numeric'],
             'place_order' => ['sometimes', 'nullable'],
             'pay' => ['sometimes', 'nullable'],
-            'payment_method' => ['required_with:pay', new Enum(PaymentType::class)]
+            'payment_method' => ['required_with:pay', new Enum(PaymentType::class)],
+            'table_id' => ['nullable']
         ];
     }
 }

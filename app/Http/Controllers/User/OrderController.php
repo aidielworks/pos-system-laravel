@@ -8,13 +8,11 @@ use App\Enum\PaymentType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Order\OrderStoreRequest;
 use App\Models\Order;
-use App\Models\OrderItem;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\Rules\Enum;
 use RealRashid\SweetAlert\Facades\Alert;
 
@@ -59,7 +57,11 @@ class OrderController extends Controller
         if($result){
             session()->flash('print-order-receipt', $result->id);
             Alert::success('Order created!');
-            session()->forget('cart_session');
+            if (isset($validated['table_id'])) {
+                session()->forget('cart_session_' . $validated['table_id']);
+            } else {
+                session()->forget('cart_session_');
+            }
         } else {
             Alert::error('Failed creating order!');
         }

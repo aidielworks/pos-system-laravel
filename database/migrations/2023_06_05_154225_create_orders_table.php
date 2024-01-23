@@ -24,6 +24,7 @@ return new class extends Migration
             $table->decimal('paid_amount')->default(0);
             $table->integer('payment_method')->nullable();
             $table->integer('status')->default(0);
+            $table->unsignedInteger('table_id')->nullable();
             $table->unsignedInteger('created_by');
             $table->timestamps();
         });

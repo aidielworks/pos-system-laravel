@@ -252,6 +252,9 @@
                         <div x-show="activeTab===2">
                             <livewire:product.product-list/>
                         </div>
+                        <div x-show="activeTab===3">
+                            <livewire:tables-list/>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -260,11 +263,12 @@
     <script>
         function setup() {
             return {
-                activeTab: {{ session()->has('setting_tab') ? session()->get('setting_tab') : 0}},
+                activeTab: {{ session()->has('setting_tab') ? session()->get('setting_tab') : 0 }},
                 tabs: [
                     "Company Information",
                     "Categories",
-                    "Products"
+                    "Products",
+                    "Tables"
                 ]
             };
         };

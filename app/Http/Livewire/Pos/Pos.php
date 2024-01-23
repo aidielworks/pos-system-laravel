@@ -2,12 +2,27 @@
 
 namespace App\Http\Livewire\Pos;
 
+use App\Enum\TableStatus;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Table;
 use Livewire\Component;
 
 class Pos extends Component
 {
+
+    const TYPE_DINE_IN = 1;
+    const TYPE_TAKEAWAY = 2;
+
+    const STEP_CHOOSE_TYPE = 1; //DINE IN or TAKE AWAY
+    const STEP_CHOOSE_TABLE = 2; //If type Dinein go to step choose table
+    const STEP_SHOW_POS = 3;
+
+    public $selected_step = 1;
+    public $selected_type = null;
+    public $selected_table_id = null;
+    public $selected_table_no = null;
+
     public $selected_categories = 0;
     public $categories;
     public $products = [];
@@ -17,8 +32,70 @@ class Pos extends Component
     public $discount = 0.00;
     public $search_items = '';
     public $order_no = '';
+    public $available_tables = [];
 
-    protected $_cart_session_key = 'cart_session';
+    public $_cart_session_key = 'cart_session_';
+    public $current_table_cart_session_key = '';
+
+    public function toggleStep($type = null)
+    {
+        $this->selected_type = $type;
+
+        if ($type == self::TYPE_DINE_IN) {
+            if ($this->selected_step == self::STEP_CHOOSE_TYPE) {
+                $this->selected_step = self::STEP_CHOOSE_TABLE;
+            } elseif ($this->selected_step == self::STEP_SHOW_POS) {
+                $this->selected_step = self::STEP_CHOOSE_TABLE;
+            } else {
+                $this->clearSteps();
+                $this->updateSession(true);
+            }
+        } elseif ($type == self::TYPE_TAKEAWAY) {
+            if($this->selected_step == self::STEP_SHOW_POS) {
+                $this->clearSteps();
+                $this->updateSession(true);
+            } else {
+                if(session()->has($this->_cart_session_key)){
+                    $this->carts = session()->get($this->_cart_session_key);
+                    $this->calculateCart();
+                }
+
+                $this->selected_step = self::STEP_SHOW_POS;
+            }
+        } else {
+            $this->clearSteps();
+            $this->updateSession(true);
+        }
+    }
+
+    public function chooseTable($table_id)
+    {
+        if ($this->selected_step == self::STEP_CHOOSE_TABLE && $this->selected_type == self::TYPE_DINE_IN) {
+            $this->selected_table_id = $table_id;
+            $table = $this->available_tables->where('id', $this->selected_table_id)->first();
+            $this->selected_table_no = $table->table_no;
+
+            $this->current_table_cart_session_key = $this->_cart_session_key . $this->selected_table_id;
+
+            if(session()->has($this->current_table_cart_session_key)){
+                $this->carts = session()->get($this->current_table_cart_session_key);
+                $this->calculateCart();
+            }
+
+            $this->selected_step = self::STEP_SHOW_POS;
+
+        } else {
+            $this->clearSteps();
+        }
+    }
+
+    public function clearSteps()
+    {
+        $this->selected_step = self::STEP_CHOOSE_TYPE;
+        $this->selected_type = null;
+        $this->selected_table_id = null;
+        $this->selected_table_no = null;
+    }
 
     public function selectCategories($category_id)
     {
@@ -52,8 +129,7 @@ class Pos extends Component
             $this->carts[] = [...$product, 'quantity' => 1];
         }
 
-        session([$this->_cart_session_key => $this->carts]);
-
+        $this->updateSession();
         $this->calculateCart();
     }
 
@@ -93,26 +169,42 @@ class Pos extends Component
     {
         unset($this->carts[$index]);
         $this->carts = array_values($this->carts);
+        $this->updateSession();
         $this->calculateCart();
     }
 
     public function removeAll()
     {
         $this->carts = [];
-        session()->forget($this->_cart_session_key);
+        $this->updateSession(true);
         $this->calculateCart();
+    }
+
+    public function updateSession($forget = false)
+    {
+        if ($forget) {
+            if ($this->selected_type == self::TYPE_DINE_IN && !empty($this->current_table_cart_session_key)) {
+                session()->forget($this->current_table_cart_session_key);
+            } else {
+                $this->carts = [];
+                session()->forget($this->_cart_session_key);
+                $this->calculateCart();
+            }
+        } else {
+            if ($this->selected_type == self::TYPE_DINE_IN && !empty($this->current_table_cart_session_key)) {
+                session([$this->current_table_cart_session_key => $this->carts]);
+            } else {
+                session([$this->_cart_session_key => $this->carts]);
+            }
+        }
     }
 
     public function mount()
     {
-        if(session()->has($this->_cart_session_key)){
-            $this->carts = session()->get($this->_cart_session_key);
-            $this->calculateCart();
-        }
-
         $this->order_no = 'OD-'.date('his');
         $this->categories = Category::all();
         $this->products = Product::orderBy('product_name', 'asc')->get();
+        $this->available_tables = Table::where('status', TableStatus::AVAILABLE)->with('orders')->get();
     }
 
     public function render()

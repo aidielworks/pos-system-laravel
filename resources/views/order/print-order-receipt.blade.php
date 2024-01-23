@@ -101,10 +101,20 @@
             <div>
                 <hr>
                 <table>
+                    @if(is_null($order->table_id))
                     <tr>
                         <td>#{{$order->order_no}}</td>
                         <td style="text-align: end">{{$order->created_at->toDateString()}} {{$order->created_at->toTimeString()}}</td>
                     </tr>
+                    @else
+                    <tr>
+                        <td>Table No: {{$order->table->table_no}}</td>
+                        <td style="text-align: end">{{$order->created_at->toDateString()}} {{$order->created_at->toTimeString()}}</td>
+                    </tr>
+                    <tr>
+                        <td>#{{$order->order_no}}</td>
+                    </tr>
+                    @endif
                 </table>
                 <table>
                     <thead>

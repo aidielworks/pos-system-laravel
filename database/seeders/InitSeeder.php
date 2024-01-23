@@ -3,9 +3,11 @@
 namespace Database\Seeders;
 
 use App\Enum\MealType;
+use App\Enum\TableStatus;
 use App\Models\Category;
 use App\Models\Company;
 use App\Models\Product;
+use App\Models\Table;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -67,6 +69,14 @@ class InitSeeder extends Seeder
                     'meal_type' => $cat == 'Beverages' ? MealType::DRINKS : MealType::FOOD
                 ]));
             }
+        }
+
+        for ($i=1; $i <= 20; $i++) {
+            Table::withoutEvents(fn () => Table::create([
+                'company_id' => $company_id,
+                'table_no' => 'A' . $i,
+                'status' => TableStatus::AVAILABLE
+            ]));
         }
     }
 }

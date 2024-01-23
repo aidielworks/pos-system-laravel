@@ -15,7 +15,7 @@ class Order extends Model
     protected $fillable = [
         'company_id', 'order_no', 'discount_id', 'subtotal_amount',
         'discount_amount', 'total_amount', 'paid_amount', 'status',
-        'created_by', 'parent_order_id', 'payment_method'
+        'created_by', 'parent_order_id', 'payment_method', 'table_id'
     ];
 
     protected $casts = [
@@ -31,5 +31,10 @@ class Order extends Model
     public function order_children()
     {
         return $this->hasMany($this, 'parent_order_id');
+    }
+
+    public function table()
+    {
+        return $this->belongsTo(Table::class);
     }
 }

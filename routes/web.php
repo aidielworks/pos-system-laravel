@@ -34,6 +34,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('/product', ProductController::class)->only(['store', 'update', 'destroy']);
     Route::resource('/category', CategoriesController::class)->only(['store', 'show', 'update', 'destroy']);
 
+    Route::post('/company/add-table', [CompanySettingController::class, 'addTable'])->name('company.add-table');
+    Route::put('/company/update-table/{table}', [CompanySettingController::class, 'updateTable'])->name('company.update-table');
     Route::post('/company/remove-logo', [CompanySettingController::class, 'removeLogo'])->name('company.remove-logo');
     Route::resource('/company', CompanySettingController::class)->only(['index', 'store']);
 

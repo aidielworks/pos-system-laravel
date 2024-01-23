@@ -76,7 +76,7 @@
                 <div class="w-full flex flex-col gap-4">
                     <div class="flex flex-row items-center px-4 py-2">
                         <p class="font-bold text-lg mr-4 whitespace-nowrap">PAY AMOUNT</p>
-                        <input wire:model="pay_amount" class="flex-1 rounded-md" type="number" name="paid_amount">
+                        <input wire:model="pay_amount" class="flex-1 rounded-md" type="number" name="paid_amount" step="0.01">
                     </div>
                     <div>
                         <select class="w-full text-sm rounded" name="payment_method">
