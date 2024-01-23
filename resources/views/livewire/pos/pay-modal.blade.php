@@ -3,10 +3,18 @@
         @csrf
         <!--Header and Close Button-->
         <div class="mx-5 mt-5 flex justify-between items-center">
-            <p class="font-bold">
-                Order: {{ $order_no }}
-                <input wire:model="order_no" type="hidden" name="order_no">
-            </p>
+            <div class="flex flex-col">
+                @if(!is_null($selected_table_no))
+                <p class="font-bold">
+                    Table No: {{ $selected_table_no }}
+                    <input wire:model="selected_table_id" type="hidden" name="table_id">
+                </p>
+                @endif
+                <p class="font-bold">
+                    Order: {{ $order_no }}
+                    <input wire:model="order_no" type="hidden" name="order_no">
+                </p>
+            </div>
             <button type="button" class="bg-gray-200 py-1 px-2 rounded-md font-sm hover:bg-gray-300" wire:click.prevent="$emit('closeModal')">X</button>
         </div>
         <!--End Header and Close Button-->

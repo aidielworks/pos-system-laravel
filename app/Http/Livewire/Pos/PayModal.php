@@ -15,7 +15,9 @@ class PayModal extends ModalComponent
     public $change = 0;
     public $payment_types;
     public $order_no;
-
+    public $selected_table_no;
+    public $selected_table_id;
+    
     public function mount()
     {
         $this->calculateCart();

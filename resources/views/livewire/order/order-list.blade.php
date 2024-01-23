@@ -159,6 +159,13 @@
                                     {{ \App\Enum\OrderStatus::from($order->status->value)->getLabel() }}
                                 </div>
                             </div>
+                            <h3 class="font-bold">
+                                @if(!is_null($order->table_id))
+                                    Table No: {{ $order->table->table_no }}
+                                @else
+                                    Takeaway
+                                @endif
+                            </h3>
                             <div class="flex-1">
                                 <table class="w-full border-separate border-spacing-y-1">
                                     <thead class="border-b-2 border-b-yellow-500">
