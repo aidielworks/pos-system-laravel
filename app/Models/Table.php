@@ -11,7 +11,9 @@ class Table extends Model
 {
     use HasFactory, CompanyTrait;
 
-    protected $fillable = ['table_no', 'status'];
+    protected $fillable = [
+        'table_no', 'status', 'qr_url'
+    ];
 
     protected $casts = [
         'status' => TableStatus::class,

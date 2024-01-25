@@ -1,5 +1,6 @@
 <?php
 
+use App\Enum\TableStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -17,7 +18,8 @@ return new class extends Migration
             $table->id();
             $table->unsignedInteger('company_id');
             $table->string('table_no');
-            $table->unsignedInteger('status');
+            $table->unsignedInteger('status')->default(TableStatus::AVAILABLE->value);
+            $table->text('qr_url')->nullable();
             $table->timestamps();
         });
     }

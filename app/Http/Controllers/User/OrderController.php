@@ -206,4 +206,9 @@ class OrderController extends Controller
 
         return view('order.print-order-receipt', compact('order', 'company', 'foods', 'drinks'));
     }
+
+    public function orderByQr(Request $request, $table_id)
+    {
+
+    }
 }

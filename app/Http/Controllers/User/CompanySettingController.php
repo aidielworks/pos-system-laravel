@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Enum;
 use Monarobase\CountryList\CountryListFacade;
 use RealRashid\SweetAlert\Facades\Alert;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class CompanySettingController extends Controller
 {
@@ -84,7 +85,7 @@ class CompanySettingController extends Controller
             ]
         );
 
-        $validated = $request->only(['table_no', 'status']);
+        $validated = $request->only(['table_no', 'status', 'qr_checkbox']);
 
         if (Table::where('table_no', $validated['table_no'])->exists()) {
             Alert::error('Table number existed!');
@@ -92,10 +93,19 @@ class CompanySettingController extends Controller
         }
 
         $result = DB::transaction(function () use ($validated) {
-            return Table::create([
+            $table = Table::create([
                 'table_no' => $validated['table_no'],
                 'status' => $validated['status'] ?? TableStatus::AVAILABLE->value,
             ]);
+
+            if (isset($validated['qr_checkbox'])) {
+                $qr = QrCode::format('png')->size(300)->generate(route('order.orderByQr', $table->id));
+                $path = '/qr_code/table_qr_' . time() . '.png';
+                Storage::disk('public')->put($path, $qr);
+                $table->update(['qr_url' => $path]);
+            }
+
+            return $table;
         });
 
         if ($result){
