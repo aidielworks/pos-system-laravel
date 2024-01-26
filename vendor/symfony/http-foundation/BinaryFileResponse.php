@@ -358,8 +358,6 @@ class BinaryFileResponse extends Response
 
     /**
      * Trust X-Sendfile-Type header.
-     *
-     * @return void
      */
     public static function trustXSendfileTypeHeader()
     {
