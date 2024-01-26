@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Enum;
 use Monarobase\CountryList\CountryListFacade;
 use RealRashid\SweetAlert\Facades\Alert;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class CompanySettingController extends Controller
 {
@@ -99,10 +98,7 @@ class CompanySettingController extends Controller
             ]);
 
             if (isset($validated['qr_checkbox'])) {
-                $qr = QrCode::format('png')->size(300)->generate(route('order.orderByQr', $table->id));
-                $path = '/qr_code/table_qr_' . time() . '.png';
-                Storage::disk('public')->put($path, $qr);
-                $table->update(['qr_url' => $path]);
+                $table->generateQR();
             }
 
             return $table;

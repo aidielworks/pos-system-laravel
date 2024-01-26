@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/',  [AuthenticatedSessionController::class, 'create']);
+Route::get('/order_qr/{table_id}', [OrderController::class, 'orderByQr'])->name('order.orderByQr');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [ProfileController::class, 'dashboard'])->name('dashboard');

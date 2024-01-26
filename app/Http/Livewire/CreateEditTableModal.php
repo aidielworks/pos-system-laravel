@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use LivewireUI\Modal\ModalComponent;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class CreateEditTableModal extends ModalComponent
 {
@@ -24,23 +23,26 @@ class CreateEditTableModal extends ModalComponent
 
     public function regenerateQR()
     {
-        $table = $this->table;
-        $result = DB::transaction(function () use ($table) {
-            $path = '/qr_code/table_qr_' . time() . '.png';
-
-            if (Storage::disk('public')->exists($path)) {
-                Storage::delete($path);
+        $result = DB::transaction(function () {
+            if (!is_null($this->table->qr_url) && Storage::disk('public')->exists($this->table->qr_url)) {
+                Storage::delete($this->table->qr_url);
             }
 
-            $qr = QrCode::format('png')->size(300)->generate(route('order.orderByQr', $table->id));
-            Storage::disk('public')->put($path, $qr);
-
-            return $table->update(['qr_url' => $path]);
+            return $this->table->generateQR();
         });
 
         if ($result) {
             $this->alert('success', 'QR Regenerated!');
         }
+    }
+
+    public function download()
+    {
+        if(!Storage::disk('public')->exists($this->table->qr_url)) {
+            $this->regenerateQR();
+        }
+
+        return Storage::disk('public')->download($this->table->qr_url);
     }
 
     public function updated($propertyName)
