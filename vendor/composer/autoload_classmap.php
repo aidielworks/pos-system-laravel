@@ -63,6 +63,7 @@ return array(
     'App\\Http\\Traits\\CompanyTrait' => $baseDir . '/app/Http/Traits/CompanyTrait.php',
     'App\\Models\\Category' => $baseDir . '/app/Models/Category.php',
     'App\\Models\\Company' => $baseDir . '/app/Models/Company.php',
+    'App\\Models\\CompanyModule' => $baseDir . '/app/Models/CompanyModule.php',
     'App\\Models\\Onboarding' => $baseDir . '/app/Models/Onboarding.php',
     'App\\Models\\Order' => $baseDir . '/app/Models/Order.php',
     'App\\Models\\OrderItem' => $baseDir . '/app/Models/OrderItem.php',

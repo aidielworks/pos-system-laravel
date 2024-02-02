@@ -719,6 +719,7 @@ class ComposerStaticInitc88cf4fcecefd7292ec89cd8db26ae8d
         'App\\Http\\Traits\\CompanyTrait' => __DIR__ . '/../..' . '/app/Http/Traits/CompanyTrait.php',
         'App\\Models\\Category' => __DIR__ . '/../..' . '/app/Models/Category.php',
         'App\\Models\\Company' => __DIR__ . '/../..' . '/app/Models/Company.php',
+        'App\\Models\\CompanyModule' => __DIR__ . '/../..' . '/app/Models/CompanyModule.php',
         'App\\Models\\Onboarding' => __DIR__ . '/../..' . '/app/Models/Onboarding.php',
         'App\\Models\\Order' => __DIR__ . '/../..' . '/app/Models/Order.php',
         'App\\Models\\OrderItem' => __DIR__ . '/../..' . '/app/Models/OrderItem.php',
