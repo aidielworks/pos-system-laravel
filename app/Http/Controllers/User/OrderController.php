@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Order\OrderStoreRequest;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\Table;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
@@ -207,8 +208,26 @@ class OrderController extends Controller
         return view('order.print-order-receipt', compact('order', 'company', 'foods', 'drinks'));
     }
 
-    public function orderByQr(Request $request, $table_id)
+    public function selfOrder(Request $request)
     {
+        $validated = $request->only('order');
 
+        if(!isset($validated['order'])) {
+            return 'error';
+        }
+
+        $order = decrypt($validated['order']);
+
+
+        if (isset($order['table_id'])) {
+            $session_key = 'self-order-' . $order['table_id'];
+            session()->put($session_key, []);
+            
+            $table = Table::find($order['table_id']);
+
+            return view('public.order.self-order', compact('order', 'session_key'));
+        } else {
+            return abort(404);
+        }
     }
 }

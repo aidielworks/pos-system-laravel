@@ -29,8 +29,10 @@ class Table extends Model
     public function generateQR()
     {
         $path = '/qr_code/table_qr_' . time() . '.png';
-
-        $qr = QrCode::format('png')->size(300)->generate(route('order.orderByQr', $this->id));
+        $encrypt = encrypt(['table_id' => $this->id]);
+        $qr = QrCode::format('png')
+                ->size(300)
+                ->generate(route('order.selfOrder', ['order' => $encrypt]));
         Storage::disk('public')->put($path, $qr);
 
         $this->update(['qr_url' => $path]);
