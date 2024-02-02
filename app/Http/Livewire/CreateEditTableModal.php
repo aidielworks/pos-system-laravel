@@ -38,7 +38,7 @@ class CreateEditTableModal extends ModalComponent
 
     public function download()
     {
-        if(!Storage::disk('public')->exists($this->table->qr_url)) {
+        if(is_null($this->table->qr_url) || !Storage::disk('public')->exists($this->table->qr_url)) {
             $this->regenerateQR();
         }
 

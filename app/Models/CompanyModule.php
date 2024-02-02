@@ -10,6 +10,8 @@ class CompanyModule extends Model
     use HasFactory;
 
     const MODULE = [
-        ''
+        'module_qr'
     ];
+
+    protected $fillable = self::MODULE;
 }

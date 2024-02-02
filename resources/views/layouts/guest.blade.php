@@ -14,8 +14,11 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @livewireStyles
     </head>
     <body class="font-sans text-gray-900 antialiased">
+        @include('sweetalert::alert')
+        <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
         <div class="min-h-screen bg-gray-100">
             <div class="flex flex-col items-center">
                 <img class="block max-h-36 text-gray-800" src="{{ asset('asset/img/app_logo.png') }}" alt="App Logo">
@@ -25,5 +28,10 @@
                 {{ $slot }}
             </div>
         </div>
+        @livewireScripts
+        @livewire('livewire-ui-modal')
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+        @stack('js')
     </body>
 </html>

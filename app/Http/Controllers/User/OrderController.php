@@ -225,7 +225,7 @@ class OrderController extends Controller
             
             $table = Table::find($order['table_id']);
 
-            return view('public.order.self-order', compact('order', 'session_key'));
+            return view('public.order.self-order', compact('order', 'session_key', 'table'));
         } else {
             return abort(404);
         }

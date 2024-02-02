@@ -1,63 +1,52 @@
 <div>
-    @if($selected_step == app\Http\Livewire\Pos\Pos::STEP_CHOOSE_TYPE)
-        <div class="h-96 my-auto flex justify-center items-center gap-4">
-            <div wire:click="toggleStep({{ app\Http\Livewire\Pos\Pos::TYPE_DINE_IN }})" wire:key="dine_in" class="w-48 h-48 bg-white hover:bg-yellow-400 border flex items-center justify-center rounded-lg cursor-pointer">
-                <p>Dine-In</p>
-            </div>
-            <div wire:click="toggleStep({{ app\Http\Livewire\Pos\Pos::TYPE_TAKEAWAY }})" wire:key="take_away" class="w-48 h-48 bg-white hover:bg-yellow-400 border flex items-center justify-center rounded-lg cursor-pointer">
-                <p>Take Away</p>
-            </div>
-        </div>
-    @endif
-
-    @if($selected_step == app\Http\Livewire\Pos\Pos::STEP_CHOOSE_TABLE)
-        <div class="mt-3 p-4">
-            <div class="flex gap-4 items-center mb-4">
-                <button wire:click="toggleStep({{ $selected_type }})" type="button" class="px-3 py-2 border border-yellow-500 bg-white text-yellow-500 rounded-lg hover:bg-yellow-500 hover:text-white">
-                    Back
+    @if(!$show_pos)
+        <div class="bg-white mt-3 p-4">
+            <div class="flex gap-4 justify-between items-center mb-6">
+                <p class="font-bold text-xl">List of available tables</p>
+                <button wire:click="chooseType({{ app\Http\Livewire\Pos\Pos::TYPE_TAKEAWAY }})" type="button" class="px-3 py-2 border border-yellow-500 bg-yellow-500 text-white rounded-lg hover:bg-white hover:text-yellow-500">
+                    Take Away
                 </button>
-                <p>List of available tables</p>
             </div>
             <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7">
-            @foreach ($available_tables as $index => $table)
-                @php
-                    $unpaid_table = $table->orders()->where('status', App\Enum\OrderStatus::UNPAID);
-                    $order = $unpaid_table->first();
-                @endphp
+                @foreach ($available_tables as $index => $table)
+                    @php
+                        $unpaid_table = $table->orders()->where('status', App\Enum\OrderStatus::UNPAID);
+                        $order = $unpaid_table->first();
+                    @endphp
 
-                @if(!$unpaid_table->exists())
-                <a wire:click.prevent="chooseTable({{ $table->id }})" wire:key="{{ $index }}" href="#">
-                @else
-                <a href="{{ route('order.show', $order->id) }}">
-                @endif
-                    <div class="relative w-32 h-32 border rounded-full flex flex-col justify-center items-center">
-                        <p class="text-3xl @if($unpaid_table->exists()) text-gray-500 @else text-black @endif">{{ $table->table_no }}</p>
-                        <p
-                            @class([
-                                'px-3 py-1 text-xs rounded-full border text-center',
-                                'bg-gray-200 text-gray-400' => $unpaid_table->exists(),
-                                'bg-gray-400 text-white' => session()->has('cart_session_' . $table->id) && count(session()->get('cart_session_' . $table->id)) > 0,
-                                'bg-green-500 text-white' => $table->status == App\Enum\TableStatus::AVAILABLE && !$unpaid_table->exists() && !(session()->has('cart_session_' . $table->id) && count(session()->get('cart_session_' . $table->id)) > 0),
-                                'bg-red-500 text-white' => $table->status == App\Enum\TableStatus::NOT_AVAILABLE,
-                                'bg-yellow-500 text-white' => $table->status == App\Enum\TableStatus::RESERVED,
-                            ])
-                        >
-                            @if($unpaid_table->exists())
-                                Occupied
-                            @elseif(session()->has('cart_session_' . $table->id) && count(session()->get('cart_session_' . $table->id)) > 0)
-                                Ongoing
-                            @else
-                                {{ $table->status->getLabel() }}
+                    @if(!$unpaid_table->exists())
+                        <a wire:click.prevent="chooseTable({{ $table->id }})" wire:key="{{ $index }}" href="#">
+                    @else
+                        <a href="{{ route('order.show', $order->id) }}">
                             @endif
-                        </p>
-                    </div>
-                </a>
-            @endforeach
+                            <div class="relative w-32 h-32 border rounded-full flex flex-col justify-center items-center">
+                                <p class="text-3xl @if($unpaid_table->exists()) text-gray-500 @else text-black @endif">{{ $table->table_no }}</p>
+                                <p
+                                    @class([
+                                        'px-3 py-1 text-xs rounded-full border text-center',
+                                        'bg-gray-200 text-gray-400' => $unpaid_table->exists(),
+                                        'bg-gray-400 text-white' => session()->has('cart_session_' . $table->id) && count(session()->get('cart_session_' . $table->id)) > 0,
+                                        'bg-green-500 text-white' => $table->status == App\Enum\TableStatus::AVAILABLE && !$unpaid_table->exists() && !(session()->has('cart_session_' . $table->id) && count(session()->get('cart_session_' . $table->id)) > 0),
+                                        'bg-red-500 text-white' => $table->status == App\Enum\TableStatus::NOT_AVAILABLE,
+                                        'bg-yellow-500 text-white' => $table->status == App\Enum\TableStatus::RESERVED,
+                                    ])
+                                >
+                                    @if($unpaid_table->exists())
+                                        Occupied
+                                    @elseif(session()->has('cart_session_' . $table->id) && count(session()->get('cart_session_' . $table->id)) > 0)
+                                        Ongoing
+                                    @else
+                                        {{ $table->status->getLabel() }}
+                                    @endif
+                                </p>
+                            </div>
+                        </a>
+                @endforeach
             </div>
         </div>
     @endif
 
-    @if($selected_step == app\Http\Livewire\Pos\Pos::STEP_SHOW_POS)
+    @if($show_pos)
         <form action="{{ route('order.store') }}" method="post">
             @csrf
             <div class="h-screen md:h-[75vh] mx-auto bg-white  overflow-y-auto">
@@ -65,14 +54,16 @@
                     <!-- left section -->
                     <div class="h-full w-full lg:w-3/5 shadow-lg">
                         <!-- header -->
-                        <div class="flex flex-row gap-4 items-center px-5 mt-5">
-                            <button wire:click="toggleStep({{ $selected_type }})" type="button" class="px-3 py-2 rounded-md shadow-lg text-center font-semibold bg-yellow-500 text-white hover:bg-yellow-700 hover:text-yellow-500">
-                                Back
-                            </button>
-                            <div class="text-gray-800 w-2/3">
-                                <div class="font-bold text-xl">{{ getCompany()->name ?? '' }}</div>
+                        @if(!$self_order)
+                            <div class="flex flex-row gap-4 items-center px-5 mt-5">
+                                <button wire:click="clearSteps" type="button" class="px-3 py-2 rounded-md shadow-lg text-center font-semibold bg-yellow-500 text-white hover:bg-yellow-700 hover:text-yellow-500">
+                                    Back
+                                </button>
+                                <div class="text-gray-800 w-2/3">
+                                    <div class="font-bold text-xl">{{ getCompany()->name ?? '' }}</div>
+                                </div>
                             </div>
-                        </div>
+                        @endif
                         <!-- end header -->
                         <!-- search products -->
                         <div class="flex px-2 flex-row relative mt-5">
@@ -213,7 +204,7 @@
                         <!-- end total -->
                         <!-- button pay-->
                         <div class="flex flex-row gap-4 px-5 my-5">
-                            @if ($selected_type == app\Http\Livewire\Pos\Pos::TYPE_DINE_IN)
+                            @if ($selected_type == app\Http\Livewire\Pos\Pos::TYPE_DINE_IN && !$self_order)
                                 <button type="submit" name="place_order"
                                     @class([
                                         'w-full px-4 py-2 rounded-md shadow-md font-semibold',
@@ -237,10 +228,6 @@
                                 PAY
                             </button>
                         </div>
-                        <form action="{{ route('order.store') }}" method="post">
-                            @csrf
-
-                        </form>
                     </div>
                     <!-- end right section -->
                 </div>

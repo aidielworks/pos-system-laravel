@@ -15,6 +15,7 @@ return new class extends Migration
     {
         Schema::create('company_modules', function (Blueprint $table) {
             $table->id();
+            $table->boolean('module_qr');
             $table->timestamps();
         });
     }

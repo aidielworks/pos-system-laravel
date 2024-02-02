@@ -8,7 +8,7 @@
 <div class="py-6">
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div class="min-h-[75vh] overflow-hidden sm:rounded-lg">
-            test
+            <livewire:pos.pos :selected_table_id="$table->id"/>
         </div>
     </div>
 </div>
