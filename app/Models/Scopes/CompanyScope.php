@@ -17,9 +17,16 @@ class CompanyScope implements Scope
      * @return void
      */
 
-    public function getCompanyId(): int
+    protected mixed $tenantId = null;
+
+    public function __construct($tenantId = null)
     {
-        return Auth::user()->company->first()->id ?? 0;
+        $this->tenantId = $tenantId;
+    }
+
+    public function getCompanyId()
+    {
+        return $this->tenantId ?: (auth()->check() ? Auth::user()->company->first()->id : null);
     }
 
     public function apply(Builder $builder, Model $model)

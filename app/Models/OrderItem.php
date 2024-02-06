@@ -6,9 +6,9 @@ use App\Http\Traits\CompanyTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class OrderItem extends Model
+class OrderItem extends BaseModel
 {
-    use HasFactory, CompanyTrait;
+    use HasFactory;
 
     protected $fillable = [
         'company_id', 'order_id', 'product_id', 'price',
