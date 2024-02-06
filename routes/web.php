@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/',  [AuthenticatedSessionController::class, 'create']);
 Route::get('/self_order', [OrderController::class, 'selfOrder'])->name('order.selfOrder');
+Route::post('/self_order', [OrderController::class, 'storeSelfOrder'])->name('order.store.selfOrder');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [ProfileController::class, 'dashboard'])->name('dashboard');

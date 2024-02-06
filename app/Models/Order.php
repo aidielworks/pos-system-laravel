@@ -15,7 +15,8 @@ class Order extends BaseModel
     protected $fillable = [
         'company_id', 'order_no', 'discount_id', 'subtotal_amount',
         'discount_amount', 'total_amount', 'paid_amount', 'status',
-        'created_by', 'parent_order_id', 'payment_method', 'table_id'
+        'created_by', 'parent_order_id', 'payment_method', 'table_id',
+        'self_order'
     ];
 
     protected $casts = [

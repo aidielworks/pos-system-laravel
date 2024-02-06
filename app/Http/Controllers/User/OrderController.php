@@ -6,8 +6,10 @@ use App\Enum\MealType;
 use App\Enum\OrderStatus;
 use App\Enum\PaymentType;
 use App\Http\Controllers\Controller;
+use App\Http\Livewire\Pos\Pos;
 use App\Http\Requests\Order\OrderStoreRequest;
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\Table;
 use Illuminate\Http\Request;
@@ -15,6 +17,8 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rules\Enum;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class OrderController extends Controller
@@ -44,6 +48,8 @@ class OrderController extends Controller
 
         $result = DB::transaction(function () use ($validated){
             $order_input = Arr::except($validated, ['order_items']);
+            $order_input['order_no'] = 'OD-'.date('his');
+
             $order_items_input = Arr::only($validated, 'order_items');
 
             $order = Order::create([...$order_input, 'created_by' => Auth::id()]);
@@ -208,26 +214,83 @@ class OrderController extends Controller
         return view('order.print-order-receipt', compact('order', 'company', 'foods', 'drinks'));
     }
 
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     public function selfOrder(Request $request)
     {
-        $validated = $request->only('order');
+        $validated = $request->only(['order', 'success']);
 
-        if(!isset($validated['order'])) {
-            return 'error';
-        }
+        if(isset($validated['order'])) {
+            $order = decrypt($validated['order']);
 
-        $order = decrypt($validated['order']);
+            if (isset($order['table_id']) && isset($order['company_id'])) {
+                if (session()->has('self-order-key')) {
+                    $key = session()->get('self-order-key');
+                } else {
+                    $key = time();
+                    session()->put('self-order-key', $key);
+                }
 
+                $company_id = $order['company_id'];
 
-        if (isset($order['table_id'])) {
-            $session_key = 'self-order-' . $order['table_id'];
-            session()->put($session_key, []);
-            
-            $table = Table::find($order['table_id']);
+                $session_key = 'cart-session-' . $order['table_id'] . '-' . $key;
 
-            return view('public.order.self-order', compact('order', 'session_key', 'table'));
+                $table = Table::applyCompanyScopeWithId($company_id)->find($order['table_id']);
+
+                return view('public.order.self-order', compact('order', 'session_key', 'table', 'company_id'));
+            }
+        } elseif (isset($validated['success'])) {
+            $success = decrypt($validated['success']);
+            $company_id = $success['company_id'];
+            $company = getCompany($company_id);
+            $order = Order::applyCompanyScopeWithId($company_id)->find($success['order_id']);
+            $table = Table::applyCompanyScopeWithId($company_id)->find($success['table_id']);
+
+            //TODO: Success page
+            return view('public.order.self-order', compact('table', 'company_id'));
         } else {
             return abort(404);
+        }
+    }
+
+    public function storeSelfOrder(OrderStoreRequest $request)
+    {
+        $validated = $request->validated();
+        $company_id = Arr::get($validated, 'company_id');
+
+        $result = DB::transaction(function () use ($validated, $company_id){
+
+            $validated['status'] = OrderStatus::PAID;
+
+            $order_input = Arr::except($validated, ['order_items']);
+            $order_input['order_no'] = 'OD-'.date('his');
+
+            $order_items_input = Arr::only($validated, 'order_items');
+
+            $order = Order::withoutEvents(fn () => Order::create([...$order_input, 'self_order' => true]));
+
+            foreach ($order_items_input['order_items'] as $input){
+                $input['order_id'] = $order->id;
+                $input['company_id'] = $company_id;
+                OrderItem::withoutEvents(fn () => OrderItem::create($input));
+            }
+
+            return $order;
+        });
+
+        if($result){
+            Alert::success('Order created!');
+            session()->forget('cart-session-' . $validated['table_id'] . '-' . session()->get('self-order-key'));
+
+            $encrypt = encrypt(['order_id' => $result->id, 'table_id' => $validated['table_id'], 'company_id' => $company_id]);
+            return redirect()->route('order.selfOrder', ['success' => $encrypt]);
+        } else {
+            Alert::error('Failed creating order!');
+
+            $table = Table::applyCompanyScopeWithId($company_id)->find($validated['table_id']);
+            return redirect($table->url);
         }
     }
 }

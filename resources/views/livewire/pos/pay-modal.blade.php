@@ -1,5 +1,5 @@
 <div>
-    <form method="post" action="{{ route('order.store') }}">
+    <form method="post" action="{{ $self_order ? route('order.store.selfOrder') : route('order.store') }}">
         @csrf
         <!--Header and Close Button-->
         <div class="mx-5 mt-5 flex justify-between items-center">
@@ -11,8 +11,9 @@
                 </p>
                 @endif
                 <p class="font-bold">
-                    Order: {{ $order_no }}
-                    <input wire:model="order_no" type="hidden" name="order_no">
+                    @if($company_id)
+                        <input type="hidden" name="company_id" value="{{ $company_id }}">
+                    @endif
                 </p>
             </div>
             <button type="button" class="bg-gray-200 py-1 px-2 rounded-md font-sm hover:bg-gray-300" wire:click.prevent="$emit('closeModal')">X</button>
@@ -84,7 +85,12 @@
                 <div class="w-full flex flex-col gap-4">
                     <div class="flex flex-row items-center px-4 py-2">
                         <p class="font-bold text-lg mr-4 whitespace-nowrap">PAY AMOUNT</p>
-                        <input wire:model="pay_amount" class="flex-1 rounded-md" type="number" name="paid_amount" step="0.01">
+                        @if($self_order)
+                            <p class="font-bold text-lg">RM{{ $pay_amount }}</p>
+                            <input wire:model="pay_amount" type="hidden" name="paid_amount">
+                        @else
+                            <input wire:model="pay_amount" class="flex-1 rounded-md" type="number" name="paid_amount" step="0.01">
+                        @endif
                     </div>
                     <div>
                         <select class="w-full text-sm rounded" name="payment_method">

@@ -260,104 +260,109 @@
             </div>
         </div>
     </div>
-    <script>
-        function setup() {
-            return {
-                activeTab: {{ session()->has('setting_tab') ? session()->get('setting_tab') : 0 }},
-                tabs: [
-                    "Company Information",
-                    "Categories",
-                    "Products",
-                    "Tables"
-                ]
+    @push('js')
+        <script>
+            function setup() {
+                return {
+                    activeTab: {{ session()->has('setting_tab') ? session()->get('setting_tab') : 0 }},
+                    tabs: [
+                        "Company Information",
+                        "Categories",
+                        "Products",
+                        "Tables"
+                    ]
+                };
             };
-        };
 
-        const images = document.getElementById('images');
-        const company_logo = '{!! asset($company->logo_url) !!}';
-        const default_logo = '{!! asset('asset/img/default-image.png') !!}';
-        const revert = document.getElementById('revert');
+            const images = document.getElementById('images');
+            const company_logo = '{!! asset($company->logo_url) !!}';
+            const default_logo = '{!! asset('asset/img/default-image.png') !!}';
+            const revert = document.getElementById('revert');
 
-        // click the hidden input of type file if the visible button is clicked
-        // and capture the selected files
-        const logo = document.getElementById("logo");
-        document.getElementById("upload").onclick = () => logo.click();
-        logo.onchange = (e) => {
-            for (const file of e.target.files) {
-                addFile(file);
-            }
-        };
-
-        document.getElementById('revert').onclick = () => {
-            if('{{$company->logo_url}}' == ''){
-                images.src = default_logo;
-            }else {
-                images.src = company_logo;
-            }
-            logo.value = null;
-            revert.classList.add('hidden');
-        };
-
-        document.getElementById('remove_logo').onclick = () => {
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            // click the hidden input of type file if the visible button is clicked
+            // and capture the selected files
+            const logo = document.getElementById("logo");
+            document.getElementById("upload").onclick = () => logo.click();
+            logo.onchange = (e) => {
+                for (const file of e.target.files) {
+                    addFile(file);
                 }
-            });
+            };
 
-            Swal.fire({
-                title: 'Remove logo?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, remove!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        type:'POST',
-                        url:"{{ route('company.remove-logo') }}",
-                        data:{},
-                        success:function(data){
-                            Swal.fire({
-                                title: data.message,
-                                icon: 'success',
-                                showConfirmButton: false,
-                                timer: 2000,
-                            });
-                            images.src = default_logo;
-                        },
-                        error:function(error){
-                            Swal.fire({
-                                title: error.responseJSON.message,
-                                icon: 'error',
-                                showConfirmButton: false,
-                                timer: 2000,
-                            });
+            document.getElementById('revert').onclick = () => {
+                if('{{$company->logo_url}}' == ''){
+                    images.src = default_logo;
+                }else {
+                    images.src = company_logo;
+                }
+                logo.value = null;
+                revert.classList.add('hidden');
+            };
+
+            if (document.getElementById('remove_logo') !== null) {
+                document.getElementById('remove_logo').onclick = () => {
+                    $.ajaxSetup({
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                         }
                     });
-                }
-            })
-        };
 
-        // check if file is of type image and prepend the initialied
-        // template to the target element
-        function addFile(file) {
-            const isImage = file.type.match("image.*"),
-                objectURL = URL.createObjectURL(file);
-
-            if (!isImage) {
-                Swal.fire({
-                    title: 'File type must be png,jpg,jpeg',
-                    icon: 'error',
-                    showConfirmButton: false,
-                    timer: 2000,
-                });
-                return;
+                    Swal.fire({
+                        title: 'Remove logo?',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, remove!'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $.ajax({
+                                type:'POST',
+                                url:"{{ route('company.remove-logo') }}",
+                                data:{},
+                                success:function(data){
+                                    Swal.fire({
+                                        title: data.message,
+                                        icon: 'success',
+                                        showConfirmButton: false,
+                                        timer: 2000,
+                                    });
+                                    images.src = default_logo;
+                                },
+                                error:function(error){
+                                    Swal.fire({
+                                        title: error.responseJSON.message,
+                                        icon: 'error',
+                                        showConfirmButton: false,
+                                        timer: 2000,
+                                    });
+                                }
+                            });
+                        }
+                    })
+                };
             }
 
-            images.src = objectURL;
-            revert.classList.remove('hidden');
-        }
-    </script>
+            // check if file is of type image and prepend the initialied
+            // template to the target element
+            function addFile(file) {
+                const isImage = file.type.match("image.*"),
+                    objectURL = URL.createObjectURL(file);
+
+                if (!isImage) {
+                    Swal.fire({
+                        title: 'File type must be png,jpg,jpeg',
+                        icon: 'error',
+                        showConfirmButton: false,
+                        timer: 2000,
+                    });
+                    return;
+                }
+
+                images.src = objectURL;
+                revert.classList.remove('hidden');
+            }
+        </script>
+    @endpush
+
 </x-app-layout>

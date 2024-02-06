@@ -26,7 +26,6 @@ class OrderStoreRequest extends FormRequest
     public function rules()
     {
         return [
-            'order_no' => ['required'],
             'discount_id' => ['sometimes', 'nullable', 'integer'],
             'subtotal_amount' => ['required', 'numeric'],
             'discount_amount' => ['required', 'numeric'],
@@ -40,7 +39,8 @@ class OrderStoreRequest extends FormRequest
             'place_order' => ['sometimes', 'nullable'],
             'pay' => ['sometimes', 'nullable'],
             'payment_method' => ['required_with:pay', new Enum(PaymentType::class)],
-            'table_id' => ['nullable']
+            'table_id' => ['nullable'],
+            'company_id' => ['sometimes']
         ];
     }
 }

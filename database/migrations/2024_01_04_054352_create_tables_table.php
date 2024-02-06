@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('table_no');
             $table->unsignedInteger('status')->default(TableStatus::AVAILABLE->value);
             $table->text('qr_url')->nullable();
+            $table->text('url')->nullable();
             $table->timestamps();
         });
     }

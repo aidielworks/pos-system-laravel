@@ -17,11 +17,16 @@ class PayModal extends ModalComponent
     public $order_no;
     public $selected_table_no;
     public $selected_table_id;
-    
+    public $self_order = false;
+    public $company_id = null;
+
     public function mount()
     {
         $this->calculateCart();
         $this->payment_types = collect(PaymentType::cases())->mapWithKeys(fn ($type) => [$type->value => $type->getLabel()])->toArray();
+        if ($this->self_order) {
+            $this->pay_amount = number_format($this->total, 2, '.', ',');
+        }
     }
 
     public function updatedPayAmount()

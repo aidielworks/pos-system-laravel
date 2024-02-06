@@ -22,9 +22,9 @@ if (! function_exists('roundToNearestHalf')) {
 }
 
 if (! function_exists('getCompany')) {
-    function getCompany()
+    function getCompany($company_id = null)
     {
-        $company = Auth::user()->company->first();
+        $company = $company_id ? \App\Models\Company::find($company_id) : (auth()->check() ? Auth::user()->company->first() : null);
 
         if($company){
             return $company;

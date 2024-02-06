@@ -5,9 +5,11 @@ namespace App\Http\Livewire\Pos;
 use App\Enum\TableStatus;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Scopes\CompanyScope;
 use App\Models\Table;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Component;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class Pos extends Component
 {
@@ -16,7 +18,7 @@ class Pos extends Component
     const TYPE_DINE_IN = 1;
     const TYPE_TAKEAWAY = 2;
 
-    public bool $show_pos = false;
+    public $show_pos = false;
     public $selected_type = self::TYPE_DINE_IN;
     public $selected_table_id = null;
     public $selected_table_no = null;
@@ -36,42 +38,26 @@ class Pos extends Component
     public $current_table_cart_session_key = '';
 
     public $self_order = false;
+    public $company_id = null;
+
 
     public function chooseType($type)
     {
         if (in_array($type, [self::TYPE_DINE_IN, self::TYPE_TAKEAWAY])) {
-            $this->show_pos = true;
             $this->selected_type = $type;
 
             if ($type == self::TYPE_TAKEAWAY) {
-                if(session()->has($this->_cart_session_key)){
-                    $this->carts = session()->get($this->_cart_session_key);
-                    $this->calculateCart();
-                }
+                $this->setCart();
+                $this->calculateCart();
             }
+
+            $this->show_pos = true;
         }
     }
 
     public function chooseTable($table_id)
     {
-        $this->current_table_cart_session_key = $this->_cart_session_key . $this->selected_table_id;
-
-        if(session()->has($this->current_table_cart_session_key)){
-            $this->alert('success', 'Basic Alert');
-        }
-
-        $this->carts = [];
-        $this->calculateCart();
-
-        $this->selected_table_id = $table_id;
-        $table = $this->available_tables->where('id', $this->selected_table_id)->first();
-        $this->selected_table_no = $table->table_no;
-
-        if(session()->has($this->current_table_cart_session_key)){
-            $this->carts = session()->get($this->current_table_cart_session_key);
-            $this->calculateCart();
-        }
-
+        $this->initTable($table_id);
         $this->show_pos = true;
     }
 
@@ -81,24 +67,7 @@ class Pos extends Component
         $this->selected_type = self::TYPE_DINE_IN;
         $this->selected_table_id = null;
         $this->selected_table_no = null;
-    }
-
-    public function selectCategories($category_id)
-    {
-        $this->selected_categories = $category_id;
-        if ($category_id != 0) {
-            $products = Category::with([
-                'products' => fn($query) => $query->orderBy('product_name', 'asc')->when($this->search_items != '', fn($query) => $query->where('product_name', 'LIKE', '%'.$this->search_items.'%'))
-            ])->find($category_id)->products;
-        } else {
-            $products = Product::when($this->search_items != '', fn($query) => $query->where('product_name', 'LIKE', '%'.$this->search_items.'%'))->orderBy('product_name', 'asc')->get();
-        }
-        $this->products = $products;
-    }
-
-    public function updatedSearchItems($value)
-    {
-        $this->selectCategories($this->selected_categories);
+        $this->current_table_cart_session_key = '';
     }
 
     public function addToCart($product_id)
@@ -166,6 +135,36 @@ class Pos extends Component
         $this->calculateCart();
     }
 
+    public function initTable($table_id = null, $self_order = false, $self_session_key = null)
+    {
+        if ($table_id) {
+            $this->selected_table_id = $table_id;
+            $table = $this->available_tables->where('id', $this->selected_table_id)->first();
+            $this->selected_table_no = $table->table_no;
+            $this->self_order = $self_order;
+            $this->current_table_cart_session_key = $self_session_key ?? $this->_cart_session_key . $this->selected_table_id;
+
+            $this->setCart();
+        }
+    }
+
+    public function setCart()
+    {
+        $key = $this->selected_type == self::TYPE_DINE_IN ? $this->current_table_cart_session_key : $this->_cart_session_key;
+
+        if(session()->has($key)){
+            $session = session()->get($key);
+            if (isset($session['cart'])) {
+                $this->carts = $session['cart'];
+
+            }
+        } else {
+            $this->carts = [];
+        }
+
+        $this->calculateCart();
+    }
+
     public function updateSession($forget = false)
     {
         if ($forget) {
@@ -178,31 +177,40 @@ class Pos extends Component
             }
         } else {
             if ($this->selected_type == self::TYPE_DINE_IN && !empty($this->current_table_cart_session_key)) {
-                session([$this->current_table_cart_session_key => $this->carts]);
+                // Dine In
+                session([
+                    $this->current_table_cart_session_key => [
+                        'cart' => $this->carts,
+                        'self_order' => $this->self_order
+                    ]
+                ]);
             } else {
-                session([$this->_cart_session_key => $this->carts]);
+                // For Take Away
+                session([
+                    $this->_cart_session_key => [
+                        'cart' => $this->carts,
+                        'self_order' => $this->self_order
+                    ]
+                ]);
             }
         }
     }
 
-    public function mount($selected_table_id = null)    {
-        $this->order_no = 'OD-'.date('his');
-        $this->categories = Category::all();
-        $this->products = Product::orderBy('product_name', 'asc')->get();
-        $this->available_tables = Table::where('status', TableStatus::AVAILABLE)->with('orders')->get();
+    public function mount($selected_table_id = null, $self_session_key = null, $company_id = null)
+    {
+        if (isset($company_id)) {
+            $this->company_id = $company_id;
+            $this->categories = Category::applyCompanyScopeWithId($company_id)->get();
+            $this->products = Product::applyCompanyScopeWithId($company_id)->with('category')->orderBy('product_name', 'asc')->get();
+            $this->available_tables = Table::applyCompanyScopeWithId($company_id)->where('status', TableStatus::AVAILABLE)->with('orders')->get();
+        } else {
+            $this->categories = Category::all();
+            $this->products = Product::orderBy('product_name', 'asc')->get();
+            $this->available_tables = Table::where('status', TableStatus::AVAILABLE)->with('orders')->get();
+        }
 
         if ($selected_table_id) {
-            $this->selected_table_id = $selected_table_id;
-            $table = $this->available_tables->where('id', $this->selected_table_id)->first();
-            $this->selected_table_no = $table->table_no;
-            $this->self_order = true;
-            $this->current_table_cart_session_key = $this->_cart_session_key . $this->selected_table_id;
-
-            if(session()->has($this->current_table_cart_session_key)){
-                $this->carts = session()->get($this->current_table_cart_session_key);
-                $this->calculateCart();
-            }
-
+            $this->initTable($selected_table_id, true, $self_session_key);
             $this->show_pos = true;
         }
     }
@@ -210,5 +218,27 @@ class Pos extends Component
     public function render()
     {
         return view('livewire.pos.pos');
+    }
+
+    // Pos UI function
+    public function selectCategories($category_id)
+    {
+        $this->selected_categories = $category_id;
+        if ($category_id != 0) {
+            if ($this->company_id) {
+                $products = Category::with([
+                    'products' => fn($query) => $query->orderBy('product_name', 'asc')->when($this->search_items != '', fn($query) => $query->where('product_name', 'LIKE', '%'.$this->search_items.'%'))
+                ])->find($category_id)->products;
+            }
+
+        } else {
+            $products = Product::when($this->search_items != '', fn($query) => $query->where('product_name', 'LIKE', '%'.$this->search_items.'%'))->orderBy('product_name', 'asc')->get();
+        }
+        $this->products = $products;
+    }
+
+    public function updatedSearchItems($value)
+    {
+        $this->selectCategories($this->selected_categories);
     }
 }

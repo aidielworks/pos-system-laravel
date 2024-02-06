@@ -1,4 +1,5 @@
 <div>
+    {{ json_encode( session()->all()) }}
     @if(!$show_pos)
         <div class="bg-white mt-3 p-4">
             <div class="flex gap-4 justify-between items-center mb-6">
@@ -54,16 +55,18 @@
                     <!-- left section -->
                     <div class="h-full w-full lg:w-3/5 shadow-lg">
                         <!-- header -->
-                        @if(!$self_order)
+
                             <div class="flex flex-row gap-4 items-center px-5 mt-5">
+                                @if(!$self_order)
                                 <button wire:click="clearSteps" type="button" class="px-3 py-2 rounded-md shadow-lg text-center font-semibold bg-yellow-500 text-white hover:bg-yellow-700 hover:text-yellow-500">
                                     Back
                                 </button>
+                                @endif
                                 <div class="text-gray-800 w-2/3">
-                                    <div class="font-bold text-xl">{{ getCompany()->name ?? '' }}</div>
+                                    <div class="font-bold text-xl">{{ getCompany($company_id)->name ?? '' }}</div>
                                 </div>
                             </div>
-                        @endif
+
                         <!-- end header -->
                         <!-- search products -->
                         <div class="flex px-2 flex-row relative mt-5">
@@ -131,16 +134,16 @@
                     <!-- right section -->
 
                     <div class="flex flex-col h-full w-full lg:w-2/5">
-                        <div class="flex items-center justify-between px-5 py-4">
-                            <h3 class="font-bold text-lg ">
-                                Order No: {{ $order_no }}
-                                <input wire:model="order_no" type="hidden" name="order_no">
-                            </h3>
+                        <div class="flex items-center px-5 py-4">
                             @if ($selected_type == app\Http\Livewire\Pos\Pos::TYPE_DINE_IN)
                                 <p class="font-bold">
                                     Table No: {{ $selected_table_no ?? 0 }}
                                 </p>
                                 <input type="hidden" name="table_id" wire:model="selected_table_id">
+                            @else
+                                <p class="font-bold">
+                                    Take Away
+                                </p>
                             @endif
                         </div>
                         <div class="flex flex-row items-center justify-between px-5">
@@ -222,7 +225,7 @@
                                     'bg-gray-300 cursor-not-allowed text-gray-100' => count($carts) == 0,
                                     'bg-yellow-500 text-white hover:bg-yellow-700 hover:text-yellow-500' => count($carts) != 0
                                 ])
-                                wire:click.prevent="$emit('openModal', 'pos.pay-modal', {{ json_encode(['carts' => $carts, 'order_no' => $order_no, 'selected_table_no' => $selected_table_no, 'selected_table_id' => $selected_table_id]) }})"
+                                wire:click.prevent="$emit('openModal', 'pos.pay-modal', {{ json_encode(['carts' => $carts, 'order_no' => $order_no, 'selected_table_no' => $selected_table_no, 'selected_table_id' => $selected_table_id, 'self_order' => $self_order, 'company_id' => $company_id]) }})"
                                 @if(count($carts) === 0) disabled @endif
                             >
                                 PAY
