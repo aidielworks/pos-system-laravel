@@ -1,5 +1,4 @@
 <div>
-    {{ json_encode( session()->all()) }}
     @if(!$show_pos)
         <div class="bg-white mt-3 p-4">
             <div class="flex gap-4 justify-between items-center mb-6">
