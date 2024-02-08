@@ -217,6 +217,9 @@ class Pos extends Component
 
     public function render()
     {
+        if ($this->self_order) {
+            return view('livewire.pos.mobile.pos');
+        }
         return view('livewire.pos.pos');
     }
 
@@ -225,11 +228,15 @@ class Pos extends Component
     {
         $this->selected_categories = $category_id;
         if ($category_id != 0) {
+            $products = Category::query();
+
             if ($this->company_id) {
-                $products = Category::with([
-                    'products' => fn($query) => $query->orderBy('product_name', 'asc')->when($this->search_items != '', fn($query) => $query->where('product_name', 'LIKE', '%'.$this->search_items.'%'))
-                ])->find($category_id)->products;
+                $products = Category::applyCompanyScopeWithId($this->company_id);
             }
+
+            $products = $products->with([
+                'products' => fn($query) => $query->orderBy('product_name', 'asc')->when($this->search_items != '', fn($query) => $query->where('product_name', 'LIKE', '%'.$this->search_items.'%'))
+            ])->find($category_id)->products;
 
         } else {
             $products = Product::when($this->search_items != '', fn($query) => $query->where('product_name', 'LIKE', '%'.$this->search_items.'%'))->orderBy('product_name', 'asc')->get();

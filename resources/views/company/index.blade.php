@@ -274,6 +274,27 @@
                 };
             };
 
+            $("form").submit(function(e) {
+                if ($(this).children('input[name="_method"]').val() != 'delete') {
+                    return;
+                }
+                e.preventDefault();
+                Swal.fire({
+                    title: '{{ __('Are you sure want to delete?') }}',
+                    text: '{{ __('This action cannot be undone!') }}',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: '{{ __('Yes, delete!') }}',
+                    cancelButtonText: '{{ __('Cancel') }}'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        e.currentTarget.submit();
+                    }
+                });
+            });
+
             const images = document.getElementById('images');
             const company_logo = '{!! asset($company->logo_url) !!}';
             const default_logo = '{!! asset('asset/img/default-image.png') !!}';

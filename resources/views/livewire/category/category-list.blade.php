@@ -100,23 +100,4 @@
             @endif
         </div>
     </div>
-    <script>
-        $("form").submit(function(e) {
-            e.preventDefault();
-            Swal.fire({
-                title: '{{ __('Are you sure want to delete?') }}',
-                text: '{{ __('This action cannot be undone!') }}',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: '{{ __('Yes, delete!') }}',
-                cancelButtonText: '{{ __('Cancel') }}'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    e.currentTarget.submit();
-                }
-            });
-        });
-    </script>
 </div>

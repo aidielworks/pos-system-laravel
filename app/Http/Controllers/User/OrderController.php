@@ -248,7 +248,6 @@ class OrderController extends Controller
             $order = Order::applyCompanyScopeWithId($company_id)->find($success['order_id']);
             $table = Table::applyCompanyScopeWithId($company_id)->find($success['table_id']);
 
-            //TODO: Success page
             return view('public.order.self-order', compact('table', 'company', 'order'));
         } else {
             return abort(404);

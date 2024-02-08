@@ -75,8 +75,11 @@
                                         <h4 class="text-gray-700">RM{{ $product->price }}</h4>
                                     </td>
                                     <td class="px-4 py-4 text-sm whitespace-nowrap">
-                                        <div class="inline px-3 py-1 text-sm font-normal rounded-full text-emerald-500 gap-x-2 bg-emerald-100/60">
-                                            {{ $product->category->categories_name }}
+                                        @php
+                                        $color = !isset($product->category->categories_name) ? 'gray' : 'emerald';
+                                        @endphp
+                                        <div class="inline px-3 py-1 text-sm font-normal rounded-full text-{{$color}}-500 gap-x-2 bg-{{$color}}-100/60">
+                                            {{ $product->category->categories_name ?? 'No categories' }}
                                         </div>
                                     </td>
                                     <td class="px-4 py-4 text-sm whitespace-nowrap">
@@ -121,24 +124,5 @@
             @endif
         </div>
     </div>
-    <script>
-        $("form").submit(function(e) {
-            e.preventDefault();
-            Swal.fire({
-                title: '{{ __('Are you sure want to delete?') }}',
-                text: '{{ __('This action cannot be undone!') }}',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: '{{ __('Yes, delete!') }}',
-                cancelButtonText: '{{ __('Cancel') }}'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    e.currentTarget.submit();
-                }
-            });
-        });
-    </script>
 </div>
 

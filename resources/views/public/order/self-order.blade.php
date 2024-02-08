@@ -6,17 +6,12 @@
     </x-slot>
 
     @if(request()->has('order'))
-        <div class="py-6">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="min-h-[75vh] overflow-hidden sm:rounded-lg">
-                    <livewire:pos.pos :selected_table_id="$table->id" :self_session_key="$session_key" :company_id="$company_id"/>
-                </div>
-            </div>
+        <div class="h-[calc(100vh-144px)] p-4">
+            <livewire:pos.pos :selected_table_id="$table->id" :self_session_key="$session_key" :company_id="$company_id"/>
         </div>
     @endif
 
     @if(request()->has('success'))
-
         <div class="min-h-[75vh]">
             <div class="pt-6 pb-12 flex flex-col items-center gap-2">
                 @if($company->logo_url)
