@@ -57,21 +57,24 @@
         </div>
     </div>
 
-{{--    TODO:: view cart and apyment button --}}
+    {{--    TODO:: view cart and payment button --}}
     <div class="fixed bottom-4 right-4">
-        <button
-            @class([
-                "w-full px-4 py-4 rounded-md shadow-lg text-center font-semibold",
-                'bg-gray-300 cursor-not-allowed text-gray-100' => count($carts) == 0,
-                'bg-yellow-500 text-white hover:bg-yellow-700 hover:text-yellow-500' => count($carts) != 0
-            ])
-            wire:click.prevent="$emit('openModal', 'pos.pay-modal', {{ json_encode(['carts' => $carts, 'order_no' => $order_no, 'selected_table_no' => $selected_table_no, 'selected_table_id' => $selected_table_id, 'self_order' => $self_order, 'company_id' => $company_id]) }})"
-            @if(count($carts) === 0) disabled @endif
-        >
-            PAY
-        </button>
-        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full shadow-md">
-            Cart: {{ array_sum(array_column($carts, "quantity")) }}
-        </button>
+{{--        <button--}}
+{{--            @class([--}}
+{{--                "w-full px-4 py-4 rounded-md shadow-lg text-center font-semibold",--}}
+{{--                'bg-gray-300 cursor-not-allowed text-gray-100' => count($carts) == 0,--}}
+{{--                'bg-yellow-500 text-white hover:bg-yellow-700 hover:text-yellow-500' => count($carts) != 0--}}
+{{--            ])--}}
+{{--            wire:click.prevent="$emit('openModal', 'pos.pay-modal', {{ json_encode(['carts' => $carts, 'selected_table_no' => $selected_table_no, 'selected_table_id' => $selected_table_id, 'self_order' => $self_order, 'company_id' => $company_id]) }})"--}}
+{{--            @if(count($carts) === 0) disabled @endif--}}
+{{--        >--}}
+{{--            PAY--}}
+{{--        </button>--}}
+        @if(array_sum(array_column($carts, "quantity")) > 0)
+            <a href="{{ route('order.view.selfOrder', ['order' => encrypt(['session_key' => $current_table_cart_session_key, 'table_id' => $selected_table_id, 'company_id' => $company_id])]) }}" target=”_blank” class="bg-yellow-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full shadow-md">
+                Cart: {{ array_sum(array_column($carts, "quantity")) }}
+            </a>
+       @endif
+
     </div>
 </div>

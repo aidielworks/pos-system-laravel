@@ -224,7 +224,7 @@
                                     'bg-gray-300 cursor-not-allowed text-gray-100' => count($carts) == 0,
                                     'bg-yellow-500 text-white hover:bg-yellow-700 hover:text-yellow-500' => count($carts) != 0
                                 ])
-                                wire:click.prevent="$emit('openModal', 'pos.pay-modal', {{ json_encode(['carts' => $carts, 'order_no' => $order_no, 'selected_table_no' => $selected_table_no, 'selected_table_id' => $selected_table_id, 'self_order' => $self_order, 'company_id' => $company_id]) }})"
+                                wire:click.prevent="$emit('openModal', 'pos.pay-modal', {{ json_encode(['carts' => $carts, 'selected_table_no' => $selected_table_no, 'selected_table_id' => $selected_table_id, 'self_order' => $self_order, 'company_id' => $company_id]) }})"
                                 @if(count($carts) === 0) disabled @endif
                             >
                                 PAY

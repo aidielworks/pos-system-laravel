@@ -65,9 +65,9 @@ class OrderController extends Controller
             session()->flash('print-order-receipt', $result->id);
             Alert::success('Order created!');
             if (isset($validated['table_id'])) {
-                session()->forget('cart_session_' . $validated['table_id']);
+                session()->forget('cart-session-' . $validated['table_id']);
             } else {
-                session()->forget('cart_session_');
+                session()->forget('cart-session-');
             }
         } else {
             Alert::error('Failed creating order!');
@@ -249,6 +249,26 @@ class OrderController extends Controller
             $table = Table::applyCompanyScopeWithId($company_id)->find($success['table_id']);
 
             return view('public.order.self-order', compact('table', 'company', 'order'));
+        } else {
+            return abort(404);
+        }
+    }
+
+    public function viewSelfOrder(Request $request)
+    {
+        $order = $request->get('order');
+
+        if ($order) {
+            $request = decrypt($order);
+
+            if (isset($request['company_id']) && isset($request['table_id']) && isset($request['session_key']) && session()->has($request['session_key'])) {
+                $carts = session()->get($request['session_key']);
+                $company = getCompany($request['company_id']);
+                $table = Table::applyCompanyScopeWithId($request['company_id'])->find($request['table_id']);
+                return view('public.order.view-self-order', compact('carts', 'company', 'table'));
+            } else {
+                return abort(404);
+            }
         } else {
             return abort(404);
         }

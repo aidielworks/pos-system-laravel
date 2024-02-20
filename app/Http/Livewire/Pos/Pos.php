@@ -31,10 +31,9 @@ class Pos extends Component
     public $subtotal = 0.00;
     public $discount = 0.00;
     public $search_items = '';
-    public $order_no = '';
     public $available_tables = [];
 
-    public $_cart_session_key = 'cart_session_';
+    public $_cart_session_key = 'cart-session-';
     public $current_table_cart_session_key = '';
 
     public $self_order = false;
@@ -153,11 +152,7 @@ class Pos extends Component
         $key = $this->selected_type == self::TYPE_DINE_IN ? $this->current_table_cart_session_key : $this->_cart_session_key;
 
         if(session()->has($key)){
-            $session = session()->get($key);
-            if (isset($session['cart'])) {
-                $this->carts = $session['cart'];
-
-            }
+            $this->carts = session()->get($key);
         } else {
             $this->carts = [];
         }
@@ -178,25 +173,34 @@ class Pos extends Component
         } else {
             if ($this->selected_type == self::TYPE_DINE_IN && !empty($this->current_table_cart_session_key)) {
                 // Dine In
-                session([
-                    $this->current_table_cart_session_key => [
-                        'cart' => $this->carts,
-                        'self_order' => $this->self_order
-                    ]
-                ]);
+                session([$this->current_table_cart_session_key => $this->carts]);
             } else {
                 // For Take Away
-                session([
-                    $this->_cart_session_key => [
-                        'cart' => $this->carts,
-                        'self_order' => $this->self_order
-                    ]
-                ]);
+                session([$this->_cart_session_key => $this->carts]);
             }
         }
     }
 
-    public function mount($selected_table_id = null, $self_session_key = null, $company_id = null)
+    public function selectCategories($category_id)
+    {
+        $this->selected_categories = $category_id;
+
+        $products = Product::query();
+
+        if ($this->company_id) {
+            $products = Product::applyCompanyScopeWithId($this->company_id);
+        }
+
+        $products = $products
+            ->when($category_id != 0, fn($query) => $query->where('category_id', $category_id))
+            ->when($this->search_items != '', fn($query) => $query->where('product_name', 'LIKE', '%' . $this->search_items . '%'))
+            ->orderBy('product_name')
+            ->get();
+
+        $this->products = $products;
+    }
+
+    public function initPos($selected_table_id = null, $self_session_key = null, $company_id = null)
     {
         if (isset($company_id)) {
             $this->company_id = $company_id;
@@ -215,33 +219,17 @@ class Pos extends Component
         }
     }
 
+    public function mount($selected_table_id = null, $self_session_key = null, $company_id = null)
+    {
+        $this->initPos($selected_table_id, $self_session_key, $company_id);
+    }
+
     public function render()
     {
         if ($this->self_order) {
             return view('livewire.pos.mobile.pos');
         }
         return view('livewire.pos.pos');
-    }
-
-    // Pos UI function
-    public function selectCategories($category_id)
-    {
-        $this->selected_categories = $category_id;
-        if ($category_id != 0) {
-            $products = Category::query();
-
-            if ($this->company_id) {
-                $products = Category::applyCompanyScopeWithId($this->company_id);
-            }
-
-            $products = $products->with([
-                'products' => fn($query) => $query->orderBy('product_name', 'asc')->when($this->search_items != '', fn($query) => $query->where('product_name', 'LIKE', '%'.$this->search_items.'%'))
-            ])->find($category_id)->products;
-
-        } else {
-            $products = Product::when($this->search_items != '', fn($query) => $query->where('product_name', 'LIKE', '%'.$this->search_items.'%'))->orderBy('product_name', 'asc')->get();
-        }
-        $this->products = $products;
     }
 
     public function updatedSearchItems($value)
