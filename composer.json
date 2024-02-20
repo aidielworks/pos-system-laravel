@@ -16,6 +16,7 @@
         "monarobase/country-list": "^3.4",
         "realrashid/sweet-alert": "^7.0",
         "simplesoftwareio/simple-qrcode": "^4.2",
+        "spatie/laravel-permission": "^6.3",
         "wire-elements/modal": "^1.0"
     },
     "require-dev": {
